@@ -47,8 +47,7 @@ class StNum {
             if (levelIndex == 0) {
                 let layerIndex = Math.floor(subIndex / levelLen);
                 layerIndex = layerIndex % layerLevel + Math.floor(layerIndex / layerLevel);
-                level += layers[layerIndex];
-                
+                level += layers[layerIndex];                
             } else if (curNum == '零') {
                 level = '';
             }

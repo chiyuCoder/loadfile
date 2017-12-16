@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 let {stdin, stdout, stderr} = require("process"),
     {StFloderSync} = require("./class/floder");
 let myFolder = new StFloderSync(__dirname);

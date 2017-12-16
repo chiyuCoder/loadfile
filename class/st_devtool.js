@@ -82,11 +82,13 @@ class StEcho extends StCli {
 		color = `\x1b[${backgroundColor};${fontColor}m${type}\x1b[${this.backgroundColors.default};${this.fontColors.default}m`;
 		console.log(color, str);
 	}
-	error(str) {
+	error(str, newLine = "=======>") {
 		this.log(str, 'red', "black");
+		this.log(newLine);
 	}
-	info(str){
+	info(str, newLine = "=======>"){
 		this.log(str, 'yellow', 'black');
+		this.log(newLine);
 	} 
 }
 

@@ -188,7 +188,7 @@ class StTimer extends StNum{
             a: time.getMillisecond(pad, sino)
         };
         for (let theSymbol in symbols) {
-            let reg = `(\\W|^)${theSymbol}(\\W|$)`,
+            let reg = `(\\W|_|^)${theSymbol}(\\W|_|$)`,
                 tag = 'i';
             if (theSymbol.toLowerCase() == 'y' || theSymbol.toLowerCase() == 'd') {
                 tag = '';
@@ -199,9 +199,6 @@ class StTimer extends StNum{
         return format;
     }
 }
-
-let myTimer = new StTimer();
-myTimer.format();
 module.exports = {
     StTimer:StTimer,
     StNum: StNum

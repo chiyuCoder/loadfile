@@ -1,14 +1,15 @@
 let FileSystem = require("fs"),
     Path = require("path"),
-    OperateSystem = require("os");
+    OperateSystem = require("os"),
+    { stEcho } = require("./st_devtool");
 
-class StFloderSync{
+class StFloderSync {
     constructor(root) {
         if (!root) {
             root = __dirname;
-        } 
+        }
         this.root = root;
-        if (OperateSystem.platform().toLowerCase().indexOf("win") > 0) {            
+        if (OperateSystem.platform().toLowerCase().indexOf("win") > 0) {
             this.os = "linux";
             this.sperator = "/";
         } else {
@@ -16,37 +17,57 @@ class StFloderSync{
             this.sperator = "\\";
         }
     }
-    getFullPath(path, isRelative = true) {
-        if (isRelative) {
-            path = Path.resolve(this.root, path);
-        }
+    pathJoin(parent, himSelf) {     
+        parent = parent.trim().replace(/(\\|\/)$/, '');
+        himSelf = himSelf.trim().replace(/^(\\|\/)|(\\|\/)$/g, '');
+        let sperator = this.sperator,
+            path = parent + sperator + himSelf;
+        path = path.replace(/\\|\//g, sperator);
         return path;
     }
-    exists(path, isRelative = true) {
-        path = this.getFullPath(path, isRelative);
+    getFullPath(path, parent, needTimeSymbol = false) {
+        if (!parent) {
+            parent = this.root;
+        } else {
+            parent = parent.trim();
+        }
+        if (needTimeSymbol) {
+            let { StTimer } = require("./st_string"),
+                timer = new StTimer(),
+                sym = timer.format("Y_m_d");
+            parent = this.pathJoin(parent, sym);
+        }
+        let testRootRE = new RegExp("^(\/|(\\w)+\\:)"),
+            theRoot = "/";
+        if (this.os == 'win') {
+            theRoot = this.root;
+            theRoot = theRoot.slice(0, theRoot.indexOf(":") + 2);
+        }
+        if (!parent.match(testRootRE)) {
+            parent = this.pathJoin(theRoot, parent);
+        } else {
+            parent = parent.replace(testRootRE, theRoot);
+        }
+        path = this.pathJoin(parent, path);
+        return path;
+    }
+    exists(path) {
         return FileSystem.existsSync(path);
     }
-    mkdir(path, needTimeSymbol = true,isRelative = true) {
-        console.log(path);
-        console.log(this.os);
-        path = this.getFullPath(path, isRelative);
-        let floder = this,
-            dirs = path.split(floder.sperator),
-            len = dirs.length,
-            curDir = '';
-        if (needTimeSymbol) {
-            let {StTimer} = require("./timer");
-        }
-        if (dirs[len - 1] == '\r\n') {
-            dirs.pop();
-            len = dirs.length;
-        }
-        for (let i = 0; i < len; i++) {
-            curDir = Path.resolve(curDir, dirs[i]);
-            if (floder.exists(curDir)) {
-                console.log(`${curDir} exists `);
-            } else {                
-                console.log(`${curDir} has created successfully`);
+    mkdir(path, needTimeSymbol = true) {        
+        path = this.getFullPath(path, "transport", needTimeSymbol);
+        let nowFolderObj = this,
+            pathArr = path.split(nowFolderObj.sperator),
+            pathLen = pathArr.length,
+            pathTraver = pathArr[0];
+        for (let p = 1; p < pathLen; p ++) {
+            pathTraver = pathTraver + nowFolderObj.sperator + pathArr[p];
+            console.log(pathTraver);
+            if (nowFolderObj.exists(pathTraver)) {
+                stEcho.info(`${pathTraver}已存在`);
+            } else {
+                FileSystem.mkdirSync(pathTraver);
+                stEcho.info(`${pathTraver}创建成功`);
             }
         }
     }
